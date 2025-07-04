@@ -1,10 +1,41 @@
-import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, Filter, Search, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { TrendingUp, TrendingDown, Filter, Search, Plus, Activity } from 'lucide-react';
 import { mockInvestments } from '../data/mockData';
 
 const Trading: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [livePrices, setLivePrices] = useState<{[key: string]: {price: number, change: number, changePercent: number}}>({});
+
+  // Simulate live price updates
+  useEffect(() => {
+    const updatePrices = () => {
+      const updates: {[key: string]: {price: number, change: number, changePercent: number}} = {};
+      
+      mockInvestments.forEach(investment => {
+        if (investment.type === 'stock' || investment.type === 'crypto') {
+          // Simulate small price movements
+          const changePercent = (Math.random() - 0.5) * 4; // -2% to +2%
+          const newPrice = investment.price * (1 + changePercent / 100);
+          const change = newPrice - investment.price;
+          
+          updates[investment.symbol] = {
+            price: newPrice,
+            change: change,
+            changePercent: changePercent
+          };
+        }
+      });
+      
+      setLivePrices(updates);
+    };
+
+    // Update prices every 3 seconds
+    const interval = setInterval(updatePrices, 3000);
+    updatePrices(); // Initial update
+
+    return () => clearInterval(interval);
+  }, []);
 
   const categories = [
     { id: 'all', label: 'All Assets', count: mockInvestments.length },
@@ -20,8 +51,18 @@ const Trading: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const totalPortfolioValue = mockInvestments.reduce((sum, investment) => sum + investment.value, 0);
-  const totalDayChange = mockInvestments.reduce((sum, investment) => sum + (investment.change * investment.holdings), 0);
+  const totalPortfolioValue = mockInvestments.reduce((sum, investment) => {
+    const livePrice = livePrices[investment.symbol];
+    const currentPrice = livePrice ? livePrice.price : investment.price;
+    return sum + (currentPrice * investment.holdings);
+  }, 0);
+
+  const totalDayChange = mockInvestments.reduce((sum, investment) => {
+    const livePrice = livePrices[investment.symbol];
+    const change = livePrice ? livePrice.change : investment.change;
+    return sum + (change * investment.holdings);
+  }, 0);
+
   const totalDayChangePercent = (totalDayChange / totalPortfolioValue) * 100;
 
   const formatCurrency = (amount: number) => {
@@ -38,6 +79,21 @@ const Trading: React.FC = () => {
       case 'stock': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const getCurrentPrice = (investment: any) => {
+    const livePrice = livePrices[investment.symbol];
+    return livePrice ? livePrice.price : investment.price;
+  };
+
+  const getCurrentChange = (investment: any) => {
+    const livePrice = livePrices[investment.symbol];
+    return livePrice ? livePrice.change : investment.change;
+  };
+
+  const getCurrentChangePercent = (investment: any) => {
+    const livePrice = livePrices[investment.symbol];
+    return livePrice ? livePrice.changePercent : investment.changePercent;
   };
 
   return (
@@ -82,6 +138,40 @@ const Trading: React.FC = () => {
               Browse Assets
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Live Market Tickers */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        <div className="flex items-center space-x-2 mb-4">
+          <Activity className="w-5 h-5 text-blue-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Live Market</h3>
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {mockInvestments.filter(inv => inv.type === 'stock' || inv.type === 'crypto').slice(0, 6).map((investment) => (
+            <div key={investment.id} className="bg-gray-50 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-medium text-gray-900">{investment.symbol}</span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(investment.type)}`}>
+                  {investment.type.toUpperCase()}
+                </span>
+              </div>
+              <div className="text-lg font-bold text-gray-900">
+                {formatCurrency(getCurrentPrice(investment))}
+              </div>
+              <div className={`flex items-center text-sm ${
+                getCurrentChangePercent(investment) >= 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {getCurrentChangePercent(investment) >= 0 ? (
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                ) : (
+                  <TrendingDown className="w-3 h-3 mr-1" />
+                )}
+                {getCurrentChangePercent(investment) >= 0 ? '+' : ''}{getCurrentChangePercent(investment).toFixed(2)}%
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -141,61 +231,70 @@ const Trading: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredInvestments.map((investment) => (
-                <tr key={investment.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-6">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-gray-600">
-                          {investment.symbol.slice(0, 2)}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{investment.name}</p>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-gray-500">{investment.symbol}</span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(investment.type)}`}>
-                            {investment.type.toUpperCase()}
+              {filteredInvestments.map((investment) => {
+                const currentPrice = getCurrentPrice(investment);
+                const currentValue = currentPrice * investment.holdings;
+                const changePercent = getCurrentChangePercent(investment);
+                
+                return (
+                  <tr key={investment.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-medium text-gray-600">
+                            {investment.symbol.slice(0, 2)}
                           </span>
                         </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{investment.name}</p>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-500">{investment.symbol}</span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(investment.type)}`}>
+                              {investment.type.toUpperCase()}
+                            </span>
+                            {(investment.type === 'stock' || investment.type === 'crypto') && (
+                              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="font-medium text-gray-900">{formatCurrency(investment.price)}</span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="text-gray-600">{investment.holdings}</span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="font-medium text-gray-900">{formatCurrency(investment.value)}</span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center space-x-1">
-                      {investment.changePercent >= 0 ? (
-                        <TrendingUp className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <TrendingDown className="w-4 h-4 text-red-500" />
-                      )}
-                      <span className={`font-medium ${
-                        investment.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {investment.changePercent >= 0 ? '+' : ''}{investment.changePercent.toFixed(2)}%
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                        Buy
-                      </button>
-                      <button className="text-red-600 hover:text-red-700 text-sm font-medium">
-                        Sell
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="font-medium text-gray-900">{formatCurrency(currentPrice)}</span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="text-gray-600">{investment.holdings}</span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="font-medium text-gray-900">{formatCurrency(currentValue)}</span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-1">
+                        {changePercent >= 0 ? (
+                          <TrendingUp className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <TrendingDown className="w-4 h-4 text-red-500" />
+                        )}
+                        <span className={`font-medium ${
+                          changePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {changePercent >= 0 ? '+' : ''}{changePercent.toFixed(2)}%
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex space-x-2">
+                        <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                          Buy
+                        </button>
+                        <button className="text-red-600 hover:text-red-700 text-sm font-medium">
+                          Sell
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

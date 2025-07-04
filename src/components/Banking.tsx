@@ -1,8 +1,10 @@
-import React from 'react';
-import { CreditCard, TrendingUp, Send, Download, Plus, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { mockBalance, mockTransactions } from '../data/mockData';
+import React, { useState } from 'react';
+import { CreditCard, TrendingUp, Send, Download, Plus, ArrowUpRight, ArrowDownRight, PiggyBank } from 'lucide-react';
+import { mockBalance, mockTransactions, mockSavingsBalance } from '../data/mockData';
 
 const Banking: React.FC = () => {
+  const [activeAccount, setActiveAccount] = useState('current');
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -20,28 +22,74 @@ const Banking: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Account Selection */}
+      <div className="flex space-x-4">
+        <button
+          onClick={() => setActiveAccount('current')}
+          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+            activeAccount === 'current'
+              ? 'bg-blue-600 text-white'
+              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          Current Account
+        </button>
+        <button
+          onClick={() => setActiveAccount('savings')}
+          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+            activeAccount === 'savings'
+              ? 'bg-green-600 text-white'
+              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          Savings Account
+        </button>
+      </div>
+
       {/* Account Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-blue-200 text-sm font-medium">Current Account</p>
-                <h2 className="text-3xl font-bold">{formatCurrency(mockBalance.current)}</h2>
+          {activeAccount === 'current' ? (
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-blue-200 text-sm font-medium">Current Account</p>
+                  <h2 className="text-3xl font-bold">{formatCurrency(mockBalance.current)}</h2>
+                </div>
+                <CreditCard className="w-8 h-8 text-blue-200" />
               </div>
-              <CreditCard className="w-8 h-8 text-blue-200" />
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                <div>
+                  <p className="text-blue-200 text-sm">Available</p>
+                  <p className="text-lg font-semibold">{formatCurrency(mockBalance.available)}</p>
+                </div>
+                <div>
+                  <p className="text-blue-200 text-sm">Pending</p>
+                  <p className="text-lg font-semibold">{formatCurrency(mockBalance.pending)}</p>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-6">
-              <div>
-                <p className="text-blue-200 text-sm">Available</p>
-                <p className="text-lg font-semibold">{formatCurrency(mockBalance.available)}</p>
+          ) : (
+            <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl p-6 text-white">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-green-200 text-sm font-medium">Savings Account</p>
+                  <h2 className="text-3xl font-bold">{formatCurrency(mockSavingsBalance.balance)}</h2>
+                </div>
+                <PiggyBank className="w-8 h-8 text-green-200" />
               </div>
-              <div>
-                <p className="text-blue-200 text-sm">Pending</p>
-                <p className="text-lg font-semibold">{formatCurrency(mockBalance.pending)}</p>
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                <div>
+                  <p className="text-green-200 text-sm">Interest Rate</p>
+                  <p className="text-lg font-semibold">{mockSavingsBalance.interestRate}% APY</p>
+                </div>
+                <div>
+                  <p className="text-green-200 text-sm">Yearly Return</p>
+                  <p className="text-lg font-semibold">{formatCurrency(mockSavingsBalance.yearlyReturn)}</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -67,7 +115,15 @@ const Banking: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Card Ending</p>
-                  <p className="font-semibold text-gray-900">••••1234</p>
+                  <div className="flex items-center space-x-2">
+                    <p className="font-semibold text-gray-900">••••1234</p>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-6 h-4 bg-blue-600 rounded-sm flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">V</span>
+                      </div>
+                      <span className="text-xs text-gray-500 font-medium">VISA</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

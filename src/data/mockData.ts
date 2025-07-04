@@ -2,9 +2,9 @@ import { Transaction, Investment, Loan, User, AccountBalance } from '../types';
 
 export const mockUser: User = {
   id: '1',
-  name: 'Alexander Hamilton',
-  email: 'alex.hamilton@email.com',
-  avatar: 'AH'
+  name: 'Root',
+  email: 'root@email.com',
+  avatar: 'RT'
 };
 
 export const mockBalance: AccountBalance = {
@@ -13,10 +13,16 @@ export const mockBalance: AccountBalance = {
   pending: 3500.00
 };
 
+export const mockSavingsBalance = {
+  balance: 621005.12,
+  interestRate: 4.0,
+  yearlyReturn: 24840.20
+};
+
 export const mockTransactions: Transaction[] = [
   {
     id: '1',
-    date: '2024-01-15',
+    date: '2025-07-15',
     description: 'Salary Payment - TechCorp Ltd',
     amount: 8500.00,
     type: 'credit',
@@ -25,7 +31,7 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: '2',
-    date: '2024-01-14',
+    date: '2025-07-14',
     description: 'Transfer to Investment Portfolio',
     amount: -5000.00,
     type: 'debit',
@@ -34,7 +40,7 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: '3',
-    date: '2024-01-13',
+    date: '2025-07-13',
     description: 'Online Purchase - Amazon',
     amount: -127.99,
     type: 'debit',
@@ -43,7 +49,7 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: '4',
-    date: '2024-01-12',
+    date: '2025-07-12',
     description: 'Dividend Payment - VXUS ETF',
     amount: 342.18,
     type: 'credit',
@@ -52,7 +58,7 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: '5',
-    date: '2024-01-11',
+    date: '2025-07-11',
     description: 'Restaurant - Le Bernardin',
     amount: -285.50,
     type: 'debit',
@@ -61,7 +67,7 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: '6',
-    date: '2024-01-10',
+    date: '2025-07-10',
     description: 'Freelance Project Payment',
     amount: 2500.00,
     type: 'credit',
@@ -70,21 +76,39 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: '7',
-    date: '2024-01-09',
-    description: 'Utility Bill - ConEd',
-    amount: -156.32,
+    date: '2025-07-09',
+    description: 'Grocery Shopping - REWE',
+    amount: -89.45,
     type: 'debit',
-    category: 'Utilities',
+    category: 'Groceries',
     balance: 383113.40
   },
   {
     id: '8',
-    date: '2024-01-08',
-    description: 'ATM Withdrawal',
-    amount: -500.00,
+    date: '2025-07-08',
+    description: 'Grocery Shopping - Penny',
+    amount: -34.67,
     type: 'debit',
-    category: 'Cash',
+    category: 'Groceries',
     balance: 383269.72
+  },
+  {
+    id: '9',
+    date: '2025-07-07',
+    description: 'Train Ticket - Deutsche Bahn',
+    amount: -156.80,
+    type: 'debit',
+    category: 'Transportation',
+    balance: 383426.52
+  },
+  {
+    id: '10',
+    date: '2025-07-06',
+    description: 'Flight Booking - Discover Airlines',
+    amount: -489.99,
+    type: 'debit',
+    category: 'Travel',
+    balance: 383583.32
   }
 ];
 
@@ -129,22 +153,22 @@ export const mockInvestments: Investment[] = [
     name: 'Bitcoin',
     symbol: 'BTC',
     type: 'crypto',
-    price: 43587.50,
-    change: 1285.30,
-    changePercent: 3.04,
-    holdings: 0.5,
-    value: 21793.75
+    price: 91806.58,
+    change: 2285.30,
+    changePercent: 2.55,
+    holdings: 6.8,
+    value: 624284.74
   },
   {
     id: '5',
     name: 'Ethereum',
     symbol: 'ETH',
     type: 'crypto',
-    price: 2534.80,
+    price: 2128.92,
     change: -45.20,
-    changePercent: -1.75,
-    holdings: 5.2,
-    value: 13180.96
+    changePercent: -2.08,
+    holdings: 90,
+    value: 191602.80
   },
   {
     id: '6',
@@ -201,6 +225,39 @@ export const mockInvestments: Investment[] = [
     changePercent: -0.62,
     holdings: 75,
     value: 11388.00
+  },
+  {
+    id: '11',
+    name: 'Alphabet Inc.',
+    symbol: 'GOOGL',
+    type: 'stock',
+    price: 180.55,
+    change: 4.25,
+    changePercent: 2.41,
+    holdings: 100,
+    value: 18055.00
+  },
+  {
+    id: '12',
+    name: 'Advanced Micro Devices',
+    symbol: 'AMD',
+    type: 'stock',
+    price: 142.30,
+    change: -3.15,
+    changePercent: -2.17,
+    holdings: 31,
+    value: 4411.30
+  },
+  {
+    id: '13',
+    name: 'Tesla Inc.',
+    symbol: 'TSLA',
+    type: 'stock',
+    price: 248.98,
+    change: 8.45,
+    changePercent: 3.51,
+    holdings: 55,
+    value: 13693.90
   }
 ];
 
